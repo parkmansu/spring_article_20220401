@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Movie Share">
+    <meta property="og:description" content="인생영화를 공유 해봐요~!">
+    <meta property="og:image" content="images/banner2.jpg">
+    <title>Movie Share</title>
+
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <style>
+        .header {
+            height: 300px;
+            background-color: gray;
+        }
+
+        .bgc {
+            height: 302px;
+            border: solid 1px gray;
+            /*margin-left: 400px;*/
+            background-image: url(../static/images/banner2.jpg);
+        }
+
+        #logout {
+            width: 100px;
+            font-size: 15px;
+            color: black;
+            outline: none;
+            position: absolute;
+            right: 0;
+        }
+        #logout:hover {
+            color: black;
+        }
+
+        #title {
+            height: 300px;
+            font-size: 40px;
+            margin-top: 80px;
+            margin-left: 600px;
+            color: yellow;
+            font-weight: bold;
+
+        }
+
+        #title > span {
+            height: 300px;
+            font-size: 40px;
+            margin-top: 80px;
+            color: blue;
+            font-weight: bold;
+
+        }
+
+        .title:hover {
+            color: blue;
+        }
+
+        .write {
+            height: 50px;
+            border: solid 1px gray;
+            background-color: gray;
+            background-image: url(../static/images/banner3.jpg);
+        }
+
+        .write > button {
+            height: 50px;
+            margin-left: 400px;
+            font-weight: bold;
+        }
+
+        .commentAll {
+            margin-top: 15px;
+            margin-left: 450px;
+        }
+
+        .commentAll > p {
+            font-weight: bold;
+        }
+
+        .comment {
+            margin-left: 400px;
+        }
+        #nickname {
+            font-size: 20px;
+        }
+    </style>
+
+
+    <script>
+
+        // 제목, 닉네임, 내용 공백 시 문구 처리 //
+        function isValidtitles(title) {
+            if (title == '') {
+                alert('제목을 입력해주세요');
+                return false;
+            }
+            return true;
+        }
+
+        function isValidContents(contents) {
+            if (contents == '') {
+                alert('내용을 입력해주세요');
+                return false;
+            }
+            return true;
+        }
+
+        function writePost() {
+
+            let title = $('#recipient-name').val();
+            if (isValidtitles(title) == false) {
+                return;
+            }
+
+            let contents = $('#message-text').val();
+            if (isValidContents(contents) == false) {
+                return;
+            }
+
+            let nickname = $("#nickname").text();
+
+
+            let data = {'title': title, 'contents': contents, 'nickname': nickname};
+            $.ajax({
+                type: "POST",
+                url: "/api/memos",
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                success: function (response) {
+                    alert('메시지가 성공적으로 작성되었습니다.');
+                    window.location.reload();
+                }
+            });
+        }
+
+        // 입력 내용 목록 List에 표시 //
+        $(document).ready(function () {
+            getMessages();
+        })
+
+        function getMessages() {
+            $('#commentBox').empty();
+            $.ajax({
+                type: 'GET',
+                url: '/api/memos',
+                success: function (response) {
+                    for (let i = 0; i < response.length; i++) {
+                        let memo = response[i];
+                        let id = memo.id;
+                        let title = memo.title;
+                        let contents = memo.contents;
+                        let modifiedAt = memo.modifiedAt;
+                        let nickname = memo.nickname;
+                        addHTML(id, title, contents, modifiedAt, nickname);
+                    }
+                }
+            })
+        }
+
+        function addHTML(id, title, contents, modifiedAt, nickname) {
+            let tempHtml = `<div class="comment">
+                            <div class="title"><h4 style="cursor: pointer" onclick="detail('${id}')">${title}</h4></div>
+                            <div class="nickname">
+                                <span>${nickname}</span> |
+                                <span>${modifiedAt}</span>
+                            </div>
+                            </div>
+                        <hr>`;
+            $('#commentBox').append(tempHtml);
+        }
+
+        function detail(id) {
+            window.location.href = `/api/memos/detail?id=${id}`
+        }
+
+        function logincheck() {
+                window.alert('로그인이 필요합니다.');
+                window.location.href="/user/login";
+        }
+        function logingo() {
+                 window.location.href="/user/login";
+        }
+
+    </script>
+
+
+</head>
+
+<body>
+<div class="header">
+    <div class="bgc">
+        <form id="my_form" method="post" action="/user/logout">
+            <a id="logout-text" href="javascript:{}" onclick="document.getElementById('my_form').submit();">
+                <button type="button" class="btn btn-success" id="logout" onclick="logingo()">로그인
+                </button>
+            </a>
+        </form>
+        <p id="title">
+            Movie Share <br><span></span><br>
+            인생 영화 같이 공유해요~
+        </p>
+    </div>
+</div>
+<br>
+<main>
+    <div class="write">
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModal"
+                data-whatever="@mdo" id="Share" onclick="logincheck()">공유하기
+        </button>
+    </div>
+    <div class="commentAll">
+        <p>전체 글()</p>
+    </div>
+    <hr>
+    <div class="comment-box" id="commentBox">
+        <div class="comment">
+            <div class="title"><h4>안녕하세요!</h4></div>
+            <div class="nickname">
+                <span>감자</span> |
+                <span>2022-03-21</span>
+            </div>
+        </div>
+        <hr>
+        <div class="comment">
+            <div class="title"><h4>안녕하세요!</h4></div>
+            <div class="nickname">
+                <span>감자</span> |
+                <span>2022-03-21</span>
+            </div>
+        </div>
+        <hr>
+    </div>
+
+</main>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">New message</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <span>닉네임 : <label id="nickname" for="nickname" class="col-form-label"></label></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipient-name" class="col-form-label">title:</label>
+                        <input type="text" class="form-control" id="recipient-name">
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">content:</label>
+                        <textarea class="form-control" id="message-text"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" alt onclick="writePost()">Send message</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>

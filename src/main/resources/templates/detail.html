@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Share</title>
+
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <style>
+        .header {
+            height: 302px;
+            background-color: #eee;
+        }
+
+        .bgc {
+            height: 302px;
+            border: solid 1px gray;
+
+        }
+
+        #logout {
+            width: 100px;
+            font-size: 15px;
+            color: white;
+            background-color: blue;
+            outline: none;
+            position: absolute;
+            right: 0;
+        }
+
+        #logout:hover {
+            color: black;
+        }
+
+        #title {
+            height: 300px;
+            font-size: 40px;
+            margin-top: 110px;
+            margin-left: 600px;
+            color: black;
+            font-weight: bold;
+
+        }
+
+        #show_comment {
+            width: 850px;
+            height: 300px;
+            margin: auto;
+        }
+
+        #show_comment_write {
+            width: 850px;
+            height: 300px;
+            margin: auto;
+        }
+
+        #backbtn {
+            margin-bottom: 10px;
+            font-size: 15px;
+            width: 70px;
+        }
+
+        #comment_write {
+            margin-bottom: 10px;
+            font-size: 15px;
+
+        }
+
+        #show_top {
+            height: 100px;
+            border: solid 1px #ddd;
+            padding-left: 20px;
+            padding-right: 20px;
+            background-color: #eee;
+        }
+
+        #show_top_write {
+            height: 110px;
+            border: solid 1px #ddd;
+            padding-left: 10px;
+            padding-right: 10px;
+            background-color: #eee;
+        }
+        #show_top_write p {
+            margin-top: 3px;
+            margin-left: 5px;
+        }
+        #show_top_write span {
+            font-size: 12px;
+
+        }
+        #show_top_write button {
+            width: 40px;
+            height: 25px;
+            padding: 0;
+            font-size: 12px;
+            margin-top: 3px;
+            margin-left: 2px;
+            float: right;
+            position: relative;
+            top: -34px;
+        }
+
+        #show_top textarea {
+            margin-top: 15px;
+            outline: none;
+        }
+
+        #show_top span {
+            color: gray;
+            font-size: 12px;
+        }
+
+        #show_top button {
+            float: right;
+            width: 44px;
+            height: 26px;
+            margin-left: 2px;
+            padding: 0;
+            padding-left: 1px;
+            padding-top: 1px;
+        }
+
+        .show_content {
+            height: 200px;
+            border: solid 1px #ddd;
+            padding: 20px;
+            background-color: #ffe;
+        }
+
+        .textarea {
+            width: 828px;
+            height: 72px;
+            padding: 5px;
+            margin-top: 5px;
+            border: solid 1px #ddd;
+            background-color: #ffe;
+        }
+
+        .textEdit {
+            padding: 20px;
+            border: solid 1px #ddd;
+            background-color: #ffe;
+            outline: none;
+        }
+
+        .hide_content {
+            display: none;
+        }
+
+        .none {
+            display: none;
+        }
+        #checkBtn {
+            display: none;
+        }
+
+        #commentarea {
+
+        }
+
+        #commentEdit {
+            padding: 5px;
+            margin-top: 5px;
+            border: solid 1px #ddd;
+            background-color: #ffe;
+            display: none;
+
+        }
+
+
+
+
+
+
+
+    </style>
+
+    <!-- 로그인 하고  회원가입, 로그인 페이지 접속 시 메인페이지로 이동.-->
+    <script th:if="${msg} != null" th:inline="javascript">
+        let message = [[${msg}]];
+        alert(message);
+    </script>
+
+    <script>
+        function getParameter(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            let regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, ""));
+        }
+
+        $(document).ready(function () {
+            getMessages();
+            getComment();
+        })
+
+        // 로그인한 아이디로 수정, 삭제 숨기기 .. 너무 어렵다..
+        let url = new URL(window.location.href) // 지금 접속한 현재 주소 - detail함수로 넘긴 주소 값(url 객체).
+        let urlurl = url.searchParams // url의 파라미터 값 들의 객체
+        let username = urlurl.get('username') // url에서 키 값 가져오기.
+
+        // 정규식을 통해 id 값 가져오기.
+        let id = getParameter("id");
+        // 메모를 불러와서 보여주기
+        function getMessages() {
+            $.ajax({
+                type: 'GET',
+                url: `/api/memos/detail/${id}`,
+                data: {},
+                success: function (response) {
+                    $('#id').text(response['id']);
+                    $('#show_title').text(response['title']);
+                    $('#show_content').text(response['contents']);
+                    $('#show_nickname').text(response['nickname']);
+                    $('#show_time').text(response['modifiedAt']);
+                    $('#textEdit').text(response['contents']);
+                    // 로그인한 닉네임과 동일한 게시글만 삭제버튼 보이게 하기
+                    if (response.nickname == username) {
+                        $('#deleteBtn').removeClass('none');
+                        $('#editBtn').removeClass('none');
+                        $('#checkBtn').removeClass('none');
+                        $('#logout').removeClass('none');
+                    }
+
+                }
+            })
+        }
+
+
+        // 수정 버튼 클릭시 기존 내용 그대로 가지고 오기.
+        function editPost() {
+            showEdits();
+            let contents = $('#show_content').text().trim();
+            $('#textEdit').val(contents);
+        }
+
+        // 수정 버튼 클릭시 내용 숨기고 나타나는 것들
+        function showEdits() {
+
+            $('#hide_content').show();
+            $('#checkBtn').show();
+            $('#textEdit').focus();
+
+            $('#editBtn').hide();
+            $('#show_content').hide();
+
+        }
+
+        // 메모를 수정합니다.
+        function submitEdit() {
+            if (confirm("정말 변경하시겠습니까?") == true) {
+                $.ajax({
+                    type: 'GET',
+                    url: "/api/memos",
+                    data: {},
+                    success: function () {
+                    }
+                })
+
+                function isValidContents(contents) {
+                    if (contents == '') {
+                        alert('내용을 입력해주세요');
+                        return false;
+                    }
+                    if (contents.trim().length > 140) {
+                        alert('공백 포함 140자 이하로 입력해주세요');
+                        return false;
+                    }
+                    return true;
+                }
+
+                // 1. 작성 대상 메모의 username과 contents 를 확인합니다.
+                let username = $('#show_nickname').text().trim();
+                let ttitle = $('#show_title').text().trim();
+                let contents = $('#textEdit').val().trim();
+
+                // 2. 작성한 메모가 올바른지 isValidContents 함수를 통해 확인합니다.
+                if (isValidContents(contents) == false) {
+                    return;
+                }
+
+                // 3. 전달할 data JSON으로 만듭니다.
+                let data = {'nickname': username, 'contents': contents, 'title': ttitle};
+
+                // 4. PUT /api/memos/{id} 에 data를 전달합니다.
+                $.ajax({
+                    type: "PUT",
+                    url: `/api/memos/${id}`,
+                    contentType: "application/json",
+                    data: JSON.stringify(data),
+                    success: function (response) {
+                        alert('메시지 변경에 성공하였습니다.');
+                        window.location.reload();
+                    }
+                });
+            } else {
+                return;
+            }
+        }
+
+        // 메모를 삭제합니다.
+        function deleteOne() {
+            if (confirm("정말 삭제하시겠습니까?") == true) {
+                $.ajax({
+                    type: 'GET',
+                    url: `/api/memos`,
+                    data: {},
+                    success: function () {
+                        alert('메시지 삭제에 성공하였습니다.');
+                        window.location.href = "/";
+                    }
+                })
+                // 1. DELETE /api/memos/{id} 에 요청해서 메모를 삭제합니다.
+                $.ajax({
+                    type: "DELETE",
+                    url: `/api/memos/${id}`,
+                    success: function (response) {
+                    }
+                })
+            } else {
+                return;
+            }
+        }
+
+        // 로그인 안하고 댓글달기 클릭시 로그인 화면으로 ㄱㄱ
+        function logincheck() {
+            if (username == null ) {
+                window.alert('로그인이 필요합니다.');
+                window.location.href="/user/login";
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////// 코맨트 시작 ////////////////////////////////////////////
+        //내용 공백 시 문구 처리 //
+        function isValidContents(contents) {
+            if (contents == '') {
+                alert('내용을 입력해주세요');
+                return false;
+            }
+            return true;
+        }
+        // 메세지 작성하여 db에 저장.
+        function writeComment() {
+
+            let contents = $('#comment-text').val();
+            if (isValidContents(contents) == false) {
+                return;
+            }
+
+            let nickname = $("#nickname").text();
+            let detailId = $("#nickname").text();
+
+            let data = { 'contents': contents, 'nickname': nickname,'detailId':detailId};
+            $.ajax({
+                type: "POST",
+                url: "/api/comments",
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                success: function (response) {
+                    alert('댓글이 성공적으로 작성되었습니다.');
+                    console.log(response)
+                    window.location.reload();
+                }
+            });
+        }
+
+        // 입력 내용 목록 List에 표시 //
+        function getComment() {
+            $('#show_comment_write').empty();
+            $.ajax({
+                type: 'GET',
+                url: '/api/comments',
+                success: function (response) {
+                    for (let i = 0; i < response.length; i++) {
+                        let comments= response[i];
+                        let id = comments.id;
+                        let contents = comments.contents;
+                        let modifiedAt = comments.modifiedAt;
+                        let nickname = comments.nickname;
+                        addHTML(id, contents, modifiedAt, nickname);
+                    }
+                }
+            })
+        }
+        function addHTML(id, contents, modifiedAt, nickname, detailId) {
+            let tempHtml = `<div id="show_top_write">
+            <div id="commentarea" class="textarea">
+                ${contents}
+            </div>
+            <div id="hide_comment" class="hide_comment">
+                <textarea class="commentEdit" name="commentEdit" id="commentEdit" cols="114" rows="3">수정 댓글.</textarea>
+            </div>
+            <p>
+                <span id="comment_nickname">${nickname}</span> |
+                <span id="comment_time">${modifiedAt}</span>
+            </p>
+                <button type="button" class="none btn btn-danger" id="${id}comment_deleteBtn" onclick="deleteOne()">삭제</button>
+                <button type="button" class="none btn btn-primary" id="${id}comment_deleteBtneditBtn" onclick="editPost()">수정</button>
+                <button type="button" class="none btn btn-success" id="${id}comment_deleteBtncheckBtn" onclick="submitEdit()">완료</button>
+        </div>`;
+            $('#show_comment_write').append(tempHtml);
+        }
+
+
+
+    </script>
+</head>
+
+<body>
+<div class="header">
+    <div class="bgc">
+        <span id="loginName" name="username"></span>
+        <form id="my_form" method="post" action="/user/logout">
+            <a id="logout-text" href="javascript:{}" onclick="document.getElementById('my_form').submit();">
+                <button type="button" class="none btn btn-secondary" id="logout">로그아웃
+                </button>
+            </a>
+        </form>
+        <p id="title">
+            Movie Review <br>
+        </p>
+    </div>
+</div>
+<br>
+<main>
+
+    <div id="show_comment">
+        <button type="button" class="btn btn-success" id="backbtn" onclick="history.back(-1)">List</button>
+        <div id="show_top">
+            <h2 id="show_title">title</h2>
+            <p><span id="show_nickname">nickname</span> |
+                <span id="show_time">modifiedAt</span>
+                <button type="button" class="none btn btn-danger" id="deleteBtn" onclick="deleteOne()">삭제</button>
+                <button type="button" class="none btn btn-primary" id="editBtn" onclick="editPost()">수정</button>
+                <button type="button" class="none btn btn-success" id="checkBtn" onclick="submitEdit()">완료</button>
+
+            </p>
+        </div>
+        <div id="show_content" class="show_content">
+            contents
+        </div>
+        <div id="hide_content" class="hide_content">
+            <textarea class="textEdit" name="textEdit" id="textEdit" cols="113" rows="8">${contents}</textarea>
+        </div>
+    </div>
+    <br>
+    <br>
+    <hr>
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModal"
+            data-whatever="@mdo" id="comment_write" onclick="logincheck()">댓글달기
+    </button>
+    <div id="show_comment_write">
+        <div id="show_top_write">
+            <div id="commentarea" class="textarea">
+                댓글달기
+            </div>
+            <div id="hide_comment" class="hide_comment">
+                <textarea class="commentEdit" name="commentEdit" id="commentEdit" cols="114" rows="3">수정 댓글.</textarea>
+            </div>
+            <p>
+                <span id="comment_nickname"> nickname </span> |
+                <span id="comment_time"> "시간" </span>
+            </p>
+                <button type="button" class="none btn btn-danger" id="comment_deleteBtn" onclick="deleteOne()">삭제</button>
+                <button type="button" class="none btn btn-primary" id="comment_deleteBtneditBtn" onclick="editPost()">수정</button>
+                <button type="button" class="none btn btn-success" id="comment_deleteBtncheckBtn" onclick="submitEdit()">완료</button>
+
+        </div>
+    </div>
+
+</main>
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">New Comment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <span>닉네임 : <label id="nickname" for="nickname" class="col-form-label"></label></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="comment-text" class="col-form-label">content:</label>
+                        <textarea class="form-control" id="comment-text"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="writeComment()">Send comment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>

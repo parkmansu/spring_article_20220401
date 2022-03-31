@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <meta charset="UTF-8">
+    <title>회원가입 페이지</title>
+    <script>
+        function onclickAdmin() {
+// Get the checkbox
+            var checkBox = document.getElementById("admin-check");
+// Get the output text
+            var box = document.getElementById("admin-token");
+
+// If the checkbox is checked, display the output text
+            if (checkBox.checked == true){
+                box.style.display = "block";
+            } else {
+                box.style.display = "none";
+            }
+        }
+
+            function check_pw(){
+                var pw = document.getElementById('pw').value;
+
+                if(pw == document.getElementById('nickname').value){
+                    window.alert('닉네임과 동일한 비밀번호는 사용할 수 없습니다.');
+                    document.getElementById('pw').value='';
+                }
+                if(pw.length < 4){
+                    window.alert('비밀번호는 4글자 이상 이용 가능합니다.');
+                    document.getElementById('pw').value='';
+                }
+
+            if(document.getElementById('pw').value !='' && document.getElementById('pw2').value!=''){
+                if(document.getElementById('pw').value==document.getElementById('pw2').value){
+                    document.getElementById('check').innerHTML='비밀번호가 일치합니다.'
+                    document.getElementById('check').style.color='blue';
+                }
+                else{
+                    document.getElementById('check').innerHTML='비밀번호가 일치하지 않습니다.';
+                    document.getElementById('check').style.color='red';
+                    document.getElementById('pw2').value='';
+                }
+            }
+        }
+
+        function allCheck() {
+            var Signform = document.Signform;
+
+            if (document.getElementById('nickname').value =='') {
+                window.alert('닉네임을 입력해주세요.');
+                return false;
+
+            } if (document.getElementById('pw').value =='') {
+                window.alert('비밀번호를 입력해주세요.');
+                return false;
+
+            } if (document.getElementById('pw2').value =='') {
+                    window.alert('비밀번호를 입력해주세요.');
+                return false;
+
+            } if (document.getElementById('email').value =='') {
+                window.alert('이메일을 입력해주세요.');
+                return false;
+            }
+
+            if (confirm("가입완료하시겠습니까?")){
+                Signform.submit();
+            }
+        }
+
+    </script>
+</head>
+<body>
+<div id="login-form">
+    <div id="login-title">MOVIE SHARE</div>
+
+    <form action="/user/signup" method="post" name="Signform" modelattribute="UserRequestDto">
+        <div class="login-id-label">Nickname
+            <span id="idCheckMsg" th:text="${valid_username}">
+            </span>
+            </div>
+        <input type="text" name="username" placeholder="닉네임을 입력해주세요." class="login-input-box" id="nickname" th:value="${requestDto?.username}">
+
+        <div class="login-id-label">Password</div>
+        <input type="password" name="password" class="login-input-box" id="pw" onchange="check_pw()" placeholder="비밀번호를 입력해주세요.">
+
+        <div class="login-id-label">PasswordCheck <span id="check"></span></div>
+        <input type="password" name="passwordCheck" class="login-input-box" id="pw2" onchange="check_pw()" placeholder="비밀번호를 확인해주세요.">
+
+        <div class="login-id-label">E-mail</div>
+        <input type="text" name="email" placeholder="E-mail을 입력해주세요." class="login-input-box" id="email">
+
+        <button type="button" id="login-id-submit" onclick="allCheck()">회원 가입</button>
+    </form>
+</div>
+</body>
+</html>
